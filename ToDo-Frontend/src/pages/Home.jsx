@@ -22,14 +22,10 @@ const Home = () => {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getUsers();
+    getUsers().then((data) => {
       setUsers(data);
-      if (data.length) {
-        setCurrentUser(data[0].username);
-      }
-    };
-    fetchData();
+      if (data.length) setCurrentUser(data[0].username);
+    });
   }, []);
 
   useEffect(() => {
@@ -79,10 +75,10 @@ const Home = () => {
           className="p-2 border"
           placeholder="Description"
           value={form.description}
-          className="p-2 border"
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
         <input
+          className="p-2 border"
           placeholder="Tags (comma-separated)"
           value={form.tags}
           onChange={(e) => setForm({ ...form, tags: e.target.value })}
@@ -109,7 +105,6 @@ const Home = () => {
           Create Todo
         </button>
       </div>
-
       <div className="grid gap-4">
         {todos.map((todo) => (
           <TodoCard
