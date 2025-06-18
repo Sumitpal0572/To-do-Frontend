@@ -1,118 +1,123 @@
 import { useEffect, useState } from "react";
 import {
   getTodosByUser,
-  getUsers,
   createTodo,
-  deleteTodoById,
+  deleteTodo,
+  updateTodo,
+  addNote,
 } from "../services/api";
 import TodoCard from "../components/TodoCard";
-import NoteModal from "../components/NoteModal";
-import Navbar from "../components/Navbar";
 
 const Home = () => {
-  const [users, setUsers] = useState([]);
-  const [currentUser, setCurrentUser] = useState("");
   const [todos, setTodos] = useState([]);
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
-    priority: "Low",
-    tags: "",
-    mentions: "",
+    createdBy: "sumit",
   });
 
+  // Fetch todos on page load
   useEffect(() => {
-    getUsers().then((data) => {
-      setUsers(data);
-      if (data.length) setCurrentUser(data[0].username);
-    });
+    fetchTodos();
   }, []);
 
-  useEffect(() => {
-    if (currentUser) {
-      getTodosByUser(currentUser).then(setTodos);
+  const fetchTodos = async () => {
+    try {
+      const data = await getTodosByUser(formData.createdBy);
+      setTodos(data);
+    } catch (err) {
+      console.error("Error fetching todos:", err);
     }
-  }, [currentUser]);
+  };
 
-  const handleCreate = async () => {
-    const todo = {
-      ...form,
-      createdBy: currentUser,
-      tags: form.tags.split(","),
-      mentions: form.mentions.split(","),
-    };
-    await createTodo(todo);
-    getTodosByUser(currentUser).then(setTodos);
-    setForm({
-      title: "",
-      description: "",
-      priority: "Low",
-      tags: "",
-      mentions: "",
-    });
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title || !formData.description) return;
+    try {
+      await createTodo(formData);
+      setFormData({ ...formData, title: "", description: "" });
+      fetchTodos();
+    } catch (err) {
+      console.error("Error creating todo:", err);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteTodoById(id);
-    getTodosByUser(currentUser).then(setTodos);
+    try {
+      await deleteTodo(id);
+      fetchTodos();
+    } catch (err) {
+      console.error("Error deleting todo:", err);
+    }
+  };
+
+  const handleUpdate = async (id, newData) => {
+    try {
+      await updateTodo(id, newData);
+      fetchTodos();
+    } catch (err) {
+      console.error("Error updating todo:", err);
+    }
+  };
+
+  const handleAddNote = async (id, note) => {
+    try {
+      await addNote(id, note);
+      fetchTodos();
+    } catch (err) {
+      console.error("Error adding note:", err);
+    }
   };
 
   return (
-    <div className="p-6">
-      <Navbar
-        users={users}
-        currentUser={currentUser}
-        setCurrentUser={setCurrentUser}
-      />
-      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="max-w-3xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Todo App</h1>
+
+      <form onSubmit={handleSubmit} className="mb-6 space-y-4">
         <input
-          className="p-2 border"
+          type="text"
+          name="title"
           placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          value={formData.title}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
         />
-        <input
-          className="p-2 border"
+        <textarea
+          name="description"
           placeholder="Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
-        <input
-          className="p-2 border"
-          placeholder="Tags (comma-separated)"
-          value={form.tags}
-          onChange={(e) => setForm({ ...form, tags: e.target.value })}
-        />
-        <input
-          className="p-2 border"
-          placeholder="Mentions (@user)"
-          value={form.mentions}
-          onChange={(e) => setForm({ ...form, mentions: e.target.value })}
-        />
-        <select
-          className="p-2 border"
-          value={form.priority}
-          onChange={(e) => setForm({ ...form, priority: e.target.value })}
-        >
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
-        </select>
+          value={formData.description}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        ></textarea>
         <button
-          onClick={handleCreate}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Create Todo
+          Add Todo
         </button>
-      </div>
-      <div className="grid gap-4">
-        {todos.map((todo) => (
-          <TodoCard
-            key={todo._id}
-            todo={todo}
-            onDelete={() => handleDelete(todo._id)}
-          />
-        ))}
+      </form>
+
+      <div className="space-y-4">
+        {todos.length > 0 ? (
+          todos.map((todo) => (
+            <TodoCard
+              key={todo._id}
+              todo={todo}
+              onDelete={handleDelete}
+              onUpdate={handleUpdate}
+              onAddNote={handleAddNote}
+            />
+          ))
+        ) : (
+          <p>No todos found.</p>
+        )}
       </div>
     </div>
   );
