@@ -1,8 +1,29 @@
-# React + Vite
+# 🖥️ To-Do App Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the **frontend** of a full-stack To-Do List application built with **React**, **Vite**, and **Tailwind CSS**. It connects to a Node.js + Express backend and allows users to manage their personal to-do items and notes.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📸 Live Demo
+
+🔗 [View Deployed App Frontend](https://to-do-frontend-alpha-two.vercel.app/)
+
+🔗 [View Deployed App Backend](https://to-do-backend-2-n903.onrender.com)
+---
+
+## 🚀 Features
+
+- Add, update, and delete To-Do items
+- Add notes to individual To-Dos
+- View to-dos based on username
+- Responsive UI with Tailwind CSS
+- Clean and user-friendly interface
+
+
+## ⚙️ Tech Stack
+
+- React + Vite
+- Tailwind CSS
+- REST API
+- Render (for backend deployment)
+- Vercel (for frontend deployment)
